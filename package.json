@@ -1,0 +1,46 @@
+{
+  "name": "worldview-fe",
+  "version": "0.1.1",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "format": "prettier --write \"*/**/*.{js,jsx,ts,tsx}\"",
+    "lint": "eslint \"*/**/*.{js,jsx,ts,tsx}\"",
+    "lint:fix": "eslint \"*/**/*.{js,jsx,ts,tsx}\" --fix"
+  },
+  "dependencies": {
+    "@hookform/resolvers": "^5.0.1",
+    "@tanstack/react-query": "^5.73.3",
+    "@worldcoin/minikit-js": "1.9.1",
+    "clsx": "^2.1.1",
+    "date-fns": "^4.1.0",
+    "eruda": "^3.2.3",
+    "framer-motion": "^12.15.0",
+    "jwt-decode": "^4.0.0",
+    "next": "14.2.26",
+    "react": "^18",
+    "react-dom": "^18",
+    "react-hook-form": "^7.55.0",
+    "tailwind-merge": "^3.2.0",
+    "viem": "^2.26.0",
+    "zod": "^3.24.2"
+  },
+  "devDependencies": {
+    "@types/node": "^20",
+    "@types/react": "^18",
+    "@types/react-dom": "^18",
+    "@typescript-eslint/eslint-plugin": "^8.32.1",
+    "@typescript-eslint/parser": "^8.32.1",
+    "eslint": "^9.27.0",
+    "eslint-config-next": "^15.4.0-canary.51",
+    "eslint-config-prettier": "^10.1.5",
+    "eslint-plugin-import": "^2.31.0",
+    "eslint-plugin-prettier": "^5.4.0",
+    "postcss": "^8",
+    "prettier": "^3.5.3",
+    "tailwindcss": "^3.4.1",
+    "typescript": "^5.8.3"
+  }
+}
