@@ -5,23 +5,12 @@ import { useParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { useToast } from '@/hooks/useToast'
 import { useUserActivities } from '@/hooks/useUserActivity'
-import { IPollFilters } from '@/types/poll'
-import { transformActionToPoll } from '@/utils/helpers'
+import { transformActionToTournament } from '@/utils/helpers'
+import TournamentCard from '../Tournament/TournamentCard'
 import FilterBar from '../FilterBar'
-import { LazyPollCard } from '../Poll/PollCard'
-import { LoadingPolls } from '../Poll/PollList'
 import { Toaster } from '../Toaster'
-import NoUserActivityView from './NoUserActivityView'
 
-interface UserActivityListProps {
-  filters: IPollFilters
-  setFiltersOpen: (open: boolean) => void
-}
-
-export default function UserActivityList({
-  filters,
-  setFiltersOpen,
-}: UserActivityListProps) {
+export default function UserActivityList() {
   const { toast } = useToast()
   const [searchTerm, setSearchTerm] = useState('')
 
@@ -38,18 +27,14 @@ export default function UserActivityList({
     error,
   } = useUserActivities({
     worldID: userWorldId,
-    isActive: filters.livePolls,
-    isInactive: filters.finishedPolls,
-    isCreated: filters.pollsCreated,
-    isParticipated: filters.pollsVoted,
     search: searchTerm || undefined,
   })
 
-  const userActions = userActivitiesData?.userActions || []
+  const userActions = userActivitiesData?.actions || []
 
   const showErrorToast = () => {
     toast({
-      description: 'Error loading user activities. Please try again!',
+      description: 'Error loading tournament activity. Please try again!',
       duration: 5 * 60 * 1000,
     })
   }
@@ -59,17 +44,13 @@ export default function UserActivityList({
   }, [error])
 
   return (
-    <section aria-label="Poll list" className="mb-6">
+    <section aria-label="Tournament activity" className="mb-6">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
-        <FilterBar
-          setFiltersOpen={setFiltersOpen}
-          onSearch={handleSearch}
-          initialSearchTerm={searchTerm}
-        />
+        <FilterBar setFiltersOpen={() => {}} onSearch={handleSearch} initialSearchTerm={searchTerm} />
       </motion.div>
       {renderContent()}
       <Toaster />
@@ -78,25 +59,19 @@ export default function UserActivityList({
 
   function renderContent() {
     if (isLoading || error) {
-      return <LoadingPolls />
+      return <p className="text-gray-500">Loading activity...</p>
     }
 
     if (!userActions || userActions.length === 0) {
-      return <NoUserActivityView />
+      return <p className="text-gray-500">No tournament activity available.</p>
     }
-
-    // Remove duplicate user actions based on pollId - where the user has voted on the poll that has been created by the user
-    const uniqueUserActions = userActions.filter(
-      (userAction, index, self) =>
-        index === self.findIndex(t => t.pollId === userAction.pollId),
-    )
 
     return (
       <div className="space-y-4">
-        {uniqueUserActions.map(userAction => (
-          <LazyPollCard
-            key={userAction.pollId}
-            poll={transformActionToPoll(userAction)}
+        {userActions.map(userAction => (
+          <TournamentCard
+            key={userAction.id}
+            tournament={transformActionToTournament(userAction)}
           />
         ))}
       </div>

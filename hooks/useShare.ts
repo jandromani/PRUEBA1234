@@ -1,34 +1,25 @@
+'use client'
+
 import { useState } from 'react'
 
-const appUrl = `https://world.org/mini-app?app_id=${process.env.NEXT_PUBLIC_APP_ID}&path=`
-
 export const useShare = () => {
-  // for custom share modal
   const [isOpen, setIsOpen] = useState(false)
   const [shareUrl, setShareUrl] = useState('')
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || ''
 
-  const handleSharePoll = async (pollTitle: string, pollId: number) => {
-    const shareUrl = `${appUrl}/poll/${pollId}`
-    await handleShareLink(shareUrl)
+  const handleShareTournament = async (tournamentTitle: string, tournamentId: number) => {
+    const url = `${appUrl}/tournaments/${tournamentId}`
+    await navigator.clipboard.writeText(url)
+    setShareUrl(url)
+    setIsOpen(true)
   }
 
-  const handleShareResults = async (pollTitle: string, pollId: number) => {
-    const shareUrl = `${appUrl}/poll/${pollId}/results`
-    await handleShareLink(shareUrl)
+  const handleShareResults = async (tournamentTitle: string, tournamentId: number) => {
+    const url = `${appUrl}/tournaments/${tournamentId}`
+    await navigator.clipboard.writeText(url)
+    setShareUrl(url)
+    setIsOpen(true)
   }
 
-  const handleShareLink = async (link: string) => {
-    if (navigator.share) {
-      try {
-        await navigator.share({ url: link })
-        console.log('Link shared successfully')
-      } catch (err) {
-        console.error('Share canceled or failed', err)
-      }
-    } else {
-      setShareUrl(link)
-      setIsOpen(true)
-    }
-  }
-  return { isOpen, setIsOpen, handleSharePoll, handleShareResults, shareUrl }
+  return { isOpen, setIsOpen, handleShareTournament, handleShareResults, shareUrl }
 }

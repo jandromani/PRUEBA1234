@@ -1,20 +1,27 @@
 import { useEffect, useState } from 'react'
-import { IPollFilters } from '@/types/poll'
 import { sendHapticFeedbackCommand } from '@/utils/animation'
 import BottomModal from '../ui/BottomModal'
 import CustomCheckbox from '../ui/CustomCheckbox'
+
+export interface TournamentFilters {
+  openLobbies: boolean
+  liveMatches: boolean
+  completed: boolean
+  joined: boolean
+}
+
 interface FilterModalProps {
-  filters: IPollFilters
-  setFilters: (filters: IPollFilters) => void
+  filters: TournamentFilters
+  setFilters: (filters: TournamentFilters) => void
   filtersOpen: boolean
   setFiltersOpen: (open: boolean) => void
 }
 
-export const DEFAULT_FILTERS: IPollFilters = {
-  livePolls: false,
-  finishedPolls: false,
-  pollsVoted: false,
-  pollsCreated: false,
+export const DEFAULT_FILTERS: TournamentFilters = {
+  openLobbies: false,
+  liveMatches: false,
+  completed: false,
+  joined: false,
 }
 
 export default function FilterModal({
@@ -23,7 +30,7 @@ export default function FilterModal({
   filtersOpen,
   setFiltersOpen,
 }: FilterModalProps) {
-  const [tempFilters, setTempFilters] = useState<IPollFilters>(filters)
+  const [tempFilters, setTempFilters] = useState<TournamentFilters>(filters)
 
   const applyFilters = () => {
     setFilters(tempFilters)
@@ -44,39 +51,39 @@ export default function FilterModal({
 
       <div className="space-y-4">
         <CustomCheckbox
+          id="lobbies"
+          label="Open lobbies"
+          checked={tempFilters.openLobbies}
+          onChange={checked => {
+            sendHapticFeedbackCommand({ type: 'selectionChanged' })
+            setTempFilters({ ...tempFilters, openLobbies: checked })
+          }}
+        />
+        <CustomCheckbox
           id="live"
-          label="Live Polls"
-          checked={tempFilters.livePolls}
+          label="Live matches"
+          checked={tempFilters.liveMatches}
           onChange={checked => {
             sendHapticFeedbackCommand({ type: 'selectionChanged' })
-            setTempFilters({ ...tempFilters, livePolls: checked })
+            setTempFilters({ ...tempFilters, liveMatches: checked })
           }}
         />
         <CustomCheckbox
-          id="finished"
-          label="Finished Polls"
-          checked={tempFilters.finishedPolls}
+          id="complete"
+          label="Completed"
+          checked={tempFilters.completed}
           onChange={checked => {
             sendHapticFeedbackCommand({ type: 'selectionChanged' })
-            setTempFilters({ ...tempFilters, finishedPolls: checked })
+            setTempFilters({ ...tempFilters, completed: checked })
           }}
         />
         <CustomCheckbox
-          id="voted"
-          label="Polls Voted"
-          checked={tempFilters.pollsVoted}
+          id="joined"
+          label="Joined"
+          checked={tempFilters.joined}
           onChange={checked => {
             sendHapticFeedbackCommand({ type: 'selectionChanged' })
-            setTempFilters({ ...tempFilters, pollsVoted: checked })
-          }}
-        />
-        <CustomCheckbox
-          id="created"
-          label="Polls Created"
-          checked={tempFilters.pollsCreated}
-          onChange={checked => {
-            sendHapticFeedbackCommand({ type: 'selectionChanged' })
-            setTempFilters({ ...tempFilters, pollsCreated: checked })
+            setTempFilters({ ...tempFilters, joined: checked })
           }}
         />
       </div>
@@ -86,10 +93,10 @@ export default function FilterModal({
         onClick={applyFilters}
         onTouchStart={() => sendHapticFeedbackCommand()}
         disabled={
-          tempFilters.livePolls === filters.livePolls &&
-          tempFilters.finishedPolls === filters.finishedPolls &&
-          tempFilters.pollsVoted === filters.pollsVoted &&
-          tempFilters.pollsCreated === filters.pollsCreated
+          tempFilters.openLobbies === filters.openLobbies &&
+          tempFilters.liveMatches === filters.liveMatches &&
+          tempFilters.completed === filters.completed &&
+          tempFilters.joined === filters.joined
         }
       >
         Apply Filters

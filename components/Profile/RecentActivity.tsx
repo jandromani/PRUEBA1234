@@ -5,21 +5,17 @@ import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/context/AuthContext'
 import { useUserActivities } from '@/hooks/useUserActivity'
-import { UserActionDto } from '@/types/poll'
+import { TournamentAction } from '@/types/tournament'
 import { sendHapticFeedbackCommand } from '@/utils/animation'
-import { transformActionToPoll } from '@/utils/helpers'
-import { LazyPollCard } from '../Poll/PollCard'
+import { transformActionToTournament } from '@/utils/helpers'
+import TournamentCard from '../Tournament/TournamentCard'
 import BlurredCard from '../Verify/BlurredCard'
-
-interface UserActivitiesResponseDto {
-  userActions: UserActionDto[]
-}
 
 interface RecentActivityProps {
   worldId?: string
 }
 
-const POLLS_PER_PAGE = 5
+const ITEMS_PER_PAGE = 5
 
 export default function RecentActivity({ worldId }: RecentActivityProps) {
   const { worldID: authWorldId } = useAuth()
@@ -30,14 +26,8 @@ export default function RecentActivity({ worldId }: RecentActivityProps) {
     worldID: effectiveWorldId || '',
   })
 
-  const activities = data?.userActions || []
-  const displayActivities = activities.slice(0, POLLS_PER_PAGE)
-
-  // Remove duplicate user actions based on pollId - where the user has voted on the poll that has been created by the user
-  const uniqueUserActions = displayActivities.filter(
-    (userAction, index, self) =>
-      index === self.findIndex(t => t.pollId === userAction.pollId),
-  )
+  const activities = data?.actions || []
+  const displayActivities = activities.slice(0, ITEMS_PER_PAGE)
 
   if (isLoading) {
     return (
@@ -96,10 +86,10 @@ export default function RecentActivity({ worldId }: RecentActivityProps) {
         <NoActivitiesView isMyProfile={!worldId} />
       ) : (
         <div className="space-y-4">
-          {uniqueUserActions.map(action => (
-            <LazyPollCard
+          {displayActivities.map(action => (
+            <TournamentCard
               key={action.id}
-              poll={transformActionToPoll(action)}
+              tournament={transformActionToTournament(action as TournamentAction)}
             />
           ))}
         </div>
@@ -109,9 +99,7 @@ export default function RecentActivity({ worldId }: RecentActivityProps) {
         <button
           className="w-full bg-primary text-white font-medium text-lg py-3 rounded-lg mt-4 active:scale-95 active:transition-transform active:duration-100"
           onClick={() =>
-            router.push(
-              `/${worldId ? 'user' : 'profile'}Activities/${effectiveWorldId}`,
-            )
+            router.push(`/${worldId ? 'user' : 'profile'}Activities/${effectiveWorldId}`)
           }
           onTouchStart={() => sendHapticFeedbackCommand()}
         >
@@ -127,14 +115,14 @@ function NoActivitiesView({ isMyProfile }: { isMyProfile: boolean }) {
     <div className="flex flex-col items-center justify-center rounded-lg mt-16">
       <Image
         src="/illustrations/no-polls.svg"
-        alt="No polls found illustration"
+        alt="No activity illustration"
         width={221}
         height={150}
       />
       <p className="text-gray-900 font-medium mt-4 text-center">
         {isMyProfile
-          ? 'No activities yet. Start exploring and engage!'
-          : 'No voting activity from this user yet. Perhaps soon!'}
+          ? 'No tournament activity yet. Join a lobby to get started!'
+          : 'No tournament activity from this user yet.'}
       </p>
     </div>
   )
