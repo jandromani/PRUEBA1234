@@ -25,7 +25,7 @@ export default function QuadraticInfoModal({
           </div>
 
           <h2 className="text-2xl font-bold text-center mb-4">
-            WorldView uses Quadratic Voting
+            50x15 usa votación cuadrática
           </h2>
 
           <p className="text-center mb-6 text-gray-700">

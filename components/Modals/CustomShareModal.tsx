@@ -106,7 +106,7 @@ export default function CustomShareModal({
               <h2 className="text-xl font-semibold flex items-center gap-2">
                 <Image src="/logo.svg" alt="Share" width={42} height={42} />
                 <div className="flex flex-col">
-                  <p className="text-black font-medium">WorldView</p>
+                  <p className="text-black font-medium">50x15</p>
                   <p className="text-sm text-gray-500 font-light">world.org</p>
                 </div>
               </h2>
