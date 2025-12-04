@@ -7,8 +7,8 @@ import { AuthProvider } from '@/context/AuthContext'
 import { FetchPatchProvider } from '@/lib/FetchPatchProvider'
 
 export const metadata: Metadata = {
-  title: 'WorldView - Voting App',
-  description: 'A quadritic voting app.',
+  title: '50x15 - Trivia y premios',
+  description: 'Juega trivias rápidas y gana premios verificados con World ID.',
 }
 
 export default function RootLayout({

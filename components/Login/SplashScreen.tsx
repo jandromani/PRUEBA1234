@@ -33,7 +33,7 @@ export function SplashScreen() {
               className="w-24 h-24"
             />
             <h1 className="text-[#191c20] text-4xl font-bold mt-4">
-              WorldView
+              50x15
             </h1>
           </div>
           <div className="w-full max-w-md px-6 mt-auto">

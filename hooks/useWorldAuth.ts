@@ -52,7 +52,7 @@ export const useWorldAuth = () => {
         requestId: '0',
         expirationTime: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
         notBefore: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
-        statement: 'Sign in to WorldView via World App.',
+        statement: 'Sign in to 50x15 via World App.',
       })
       return finalPayload
     } catch (err) {

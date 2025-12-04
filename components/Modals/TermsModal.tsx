@@ -12,34 +12,34 @@ export default function TermsOfServiceModal({
       <div className="bg-white rounded-2xl max-w-md w-full max-h-[90vh] flex flex-col overflow-hidden">
         <div className="p-6 overflow-y-auto">
           <h2 className="text-2xl font-bold mb-4">
-            WorldView Terms of Service
+            Términos de servicio de 50x15
           </h2>
 
           <p className="mb-4">
-            By using WorldView, you agree to the following terms:
+            Al usar 50x15 aceptas los siguientes términos:
           </p>
 
           <ul className="list-disc pl-6 space-y-3 mb-6">
-            <li>Use the app only with your verified World ID.</li>
-            <li>Do not post illegal, harmful, or misleading content.</li>
+            <li>Usa la app solo con tu World ID verificado.</li>
+            <li>No publiques contenido ilegal, dañino o engañoso.</li>
             <li>
-              Do not impersonate anyone, especially members of the World or
-              WorldView teams.
+              No suplantes identidades, especialmente de personas del equipo de
+              World o de 50x15.
             </li>
             <li>
-              Do not promote scams, phishing attempts, or suspicious links.
+              No promuevas estafas, phishing ni enlaces sospechosos.
             </li>
             <li>
-              Do not offer rewards, payments, or incentives for votes outside
-              the WorldView app.
+              No ofrezcas recompensas ni pagos por votos fuera de la mini-app
+              50x15 en World App.
             </li>
             <li>
-              Do not request money, donations, or financial contributions from
-              other users.
+              No solicites dinero, donaciones ni contribuciones financieras a
+              otros usuarios.
             </li>
             <li>
-              Do not post content that damages or misrepresents WorldView,
-              World, or their contributors, employees, or trademarks.
+              No publiques contenido que dañe o tergiverse a 50x15, World o a
+              sus colaboradores, empleados o marcas.
             </li>
           </ul>
 

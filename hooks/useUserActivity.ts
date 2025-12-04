@@ -13,7 +13,7 @@ interface UseUserActivitiesParams {
 const mockActions: TournamentAction[] = [
   {
     id: 1,
-    tournamentId: 12,
+    tournamentId: '12',
     tournamentTitle: 'Realm Clash Invitational',
     action: 'joined',
     at: new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString(),
@@ -22,7 +22,7 @@ const mockActions: TournamentAction[] = [
   },
   {
     id: 2,
-    tournamentId: 12,
+    tournamentId: '12',
     tournamentTitle: 'Realm Clash Invitational',
     action: 'played',
     at: new Date(Date.now() - 90 * 60 * 1000).toISOString(),
@@ -30,7 +30,7 @@ const mockActions: TournamentAction[] = [
   },
   {
     id: 3,
-    tournamentId: 21,
+    tournamentId: '21',
     tournamentTitle: 'Guild Trials Qualifier',
     action: 'won',
     at: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),

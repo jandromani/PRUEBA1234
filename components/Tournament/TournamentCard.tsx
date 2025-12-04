@@ -2,7 +2,7 @@
 
 import { motion } from 'framer-motion'
 import Link from 'next/link'
-import { TournamentSummary } from '@/types/tournament'
+import { TournamentSummary } from '@/lib/tournaments/types'
 import { ArrowLeft, ArrowRight } from '../icon-components'
 
 interface TournamentCardProps {
@@ -11,10 +11,13 @@ interface TournamentCardProps {
 
 export default function TournamentCard({ tournament }: TournamentCardProps) {
   const statusColor = {
-    lobby: 'bg-amber-100 text-amber-700',
-    live: 'bg-emerald-100 text-emerald-700',
+    scheduled: 'bg-blue-100 text-blue-700',
+    open: 'bg-amber-100 text-amber-700',
+    locked: 'bg-amber-100 text-amber-700',
+    in_progress: 'bg-emerald-100 text-emerald-700',
     finished: 'bg-gray-200 text-gray-600',
-  }[tournament.status]
+    settled: 'bg-gray-200 text-gray-600',
+  }[tournament.state]
 
   return (
     <motion.article
@@ -25,26 +28,25 @@ export default function TournamentCard({ tournament }: TournamentCardProps) {
     >
       <div className="p-4 flex items-start gap-3">
         <div className={`px-3 py-1 rounded-full text-xs font-semibold ${statusColor}`}>
-          {tournament.status === 'lobby'
-            ? 'Lobby Open'
-            : tournament.status === 'live'
-              ? 'Live'
-              : 'Finished'}
+          {tournament.state === 'open'
+            ? 'Lobby abierta'
+            : tournament.state === 'in_progress'
+              ? 'En vivo'
+              : tournament.state === 'scheduled'
+                ? 'Programado'
+                : 'Finalizado'}
         </div>
         <div className="flex-1">
-          <h3 className="text-lg font-semibold text-gray-900">{tournament.title}</h3>
-          <p className="text-sm text-gray-500">Hosted by {tournament.host}</p>
+          <h3 className="text-lg font-semibold text-gray-900">{tournament.name}</h3>
+          <p className="text-sm text-gray-500">
+            {new Date(tournament.startAt).toLocaleString()}
+          </p>
           <div className="mt-2 flex flex-wrap gap-3 text-sm text-gray-700">
+            <span className="bg-gray-100 px-3 py-1 rounded-full">Pot neto: {tournament.pot.net}</span>
             <span className="bg-gray-100 px-3 py-1 rounded-full">
-              Entrants: {tournament.entrants}
+              Preguntas: {tournament.questionCount}
             </span>
-            <span className="bg-gray-100 px-3 py-1 rounded-full">Pot: {tournament.pot} credits</span>
           </div>
-          {tournament.currentQuestion && (
-            <p className="mt-3 text-sm text-gray-700">
-              Current question: <strong>{tournament.currentQuestion.prompt}</strong>
-            </p>
-          )}
         </div>
         <ArrowLeft className="rotate-180 text-gray-400" />
       </div>

@@ -1,12 +1,12 @@
-# Worldview Frontend Documentation
+# 50x15 Frontend Documentation
 
 ## Project Overview
 
 ### Purpose:
 
-WorldView is a decentralized polling platform that empowers users to create and participate in transparent, community-driven polls. It spans across diverse topics like music, art, technology, and local favorites, allowing collective decision-making powered by blockchain transparency and decentralized identity.
+50x15 es una experiencia de trivia rápida con identidades verificadas que permite participar en salas con bote, preguntas cronometradas y premios liquidados en cadena.
 
-WorldView utilizes **Quadratic Voting (QV)**, an innovative voting mechanism that lets participants express the strength of their preferences. Unlike traditional one-person-one-vote models, QV enables users to allocate multiple votes to options they feel strongly about, reflecting the intensity of their opinions. This method reduces the dominance of single-issue voters and promotes fairer community-driven outcomes.
+50x15 utiliza verificaciones con World ID y flujo de pagos para asegurar que las respuestas y el reparto del bote sean confiables y auditable.
 
 ### Key Features:
 

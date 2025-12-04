@@ -1,4 +1,5 @@
-import { TournamentAction, TournamentSummary } from '@/types/tournament'
+import { TournamentSummary } from '@/lib/tournaments/types'
+import { TournamentAction } from '@/types/tournament'
 
 // Transform an activity into a tournament card-friendly structure
 export const transformActionToTournament = (
@@ -6,12 +7,10 @@ export const transformActionToTournament = (
 ): TournamentSummary => {
   return {
     id: action.tournamentId,
-    title: action.tournamentTitle,
-    host: 'Match history',
-    status: action.action === 'won' ? 'finished' : 'live',
-    entrants: 0,
-    pot: action.potChange ?? 0,
-    startDate: action.at,
-    currentQuestion: undefined,
+    name: action.tournamentTitle,
+    state: action.action === 'won' ? 'finished' : 'in_progress',
+    pot: { gross: action.potChange ?? 0, net: action.potChange ?? 0, rakePercent: 0 },
+    startAt: new Date(action.at).getTime(),
+    questionCount: 0,
   }
 }
