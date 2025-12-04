@@ -15,6 +15,7 @@ import {
 import ConfirmDeleteModal from '@/components/Modals/ConfirmDeleteModal'
 import VotingSuccessModal from '@/components/Modals/VotingSuccessModal'
 import { useAuth } from '@/context/AuthContext'
+import { useOfficialTimer } from '@/hooks/useOfficialTimer'
 import { useDeletePoll, useGetPollDetails } from '@/hooks/usePoll'
 import { useShare } from '@/hooks/useShare'
 import {
@@ -42,6 +43,10 @@ type VoteState = {
   count: number
   isDragging: boolean
 }
+
+const DEADLINE_SECONDS = 14
+const OPTION_REVEAL_START = 4
+const OPTION_REVEAL_END = 8
 
 export default function PollVoteCard({ pollId }: { pollId: number }) {
   const router = useRouter()
@@ -91,9 +96,25 @@ export default function PollVoteCard({ pollId }: { pollId: number }) {
   const containerRefs = useRef<(HTMLDivElement | null)[]>([])
 
   const [votesChanged, setVotesChanged] = useState(false)
+  const [typedQuestion, setTypedQuestion] = useState('')
+  const [visibleOptionCount, setVisibleOptionCount] = useState(0)
+  const [hasSubmitted, setHasSubmitted] = useState(false)
+
+  const { remainingSeconds, isExpired } = useOfficialTimer({
+    pollId,
+    durationSeconds: DEADLINE_SECONDS,
+  })
+
+  const elapsedSeconds = Math.min(
+    DEADLINE_SECONDS,
+    Math.max(0, DEADLINE_SECONDS - remainingSeconds),
+  )
+  const isInteractionWindowActive =
+    elapsedSeconds >= OPTION_REVEAL_START && !hasSubmitted && !isExpired
 
   const handleDragStart = (index: number) => {
     if (!votes) return
+    if (!isInteractionWindowActive) return
 
     const newVotes = [...votes]
     newVotes[index].isDragging = true
@@ -110,6 +131,7 @@ export default function PollVoteCard({ pollId }: { pollId: number }) {
     index: number,
   ) => {
     if (!votes?.[index].isDragging) return
+    if (!isInteractionWindowActive) return
 
     const container = containerRefs.current[index]
     if (!container) return
@@ -136,6 +158,8 @@ export default function PollVoteCard({ pollId }: { pollId: number }) {
 
   const handleVote = () => {
     sendHapticFeedbackCommand()
+    if (!isInteractionWindowActive) return
+    setHasSubmitted(true)
     let weightDistribution: Record<string, number> = {}
 
     if (votes) {
@@ -261,10 +285,62 @@ export default function PollVoteCard({ pollId }: { pollId: number }) {
     return () => cancelAnimationFrame(timer)
   }, [])
 
+  useEffect(() => {
+    setHasSubmitted(false)
+    setTypedQuestion('')
+    setVisibleOptionCount(0)
+  }, [pollId])
+
+  useEffect(() => {
+    if (!pollDetails?.title) {
+      setTypedQuestion('')
+      return
+    }
+
+    const fraction =
+      DEADLINE_SECONDS === 0 ? 1 : elapsedSeconds / DEADLINE_SECONDS
+    const computedLength =
+      fraction <= 0
+        ? 0
+        : Math.max(1, Math.floor(pollDetails.title.length * fraction))
+    const shouldRevealAll = fraction >= 1 || isExpired
+
+    setTypedQuestion(
+      shouldRevealAll
+        ? pollDetails.title
+        : pollDetails.title.slice(0, computedLength),
+    )
+  }, [elapsedSeconds, isExpired, pollDetails?.title])
+
+  useEffect(() => {
+    if (!pollOptions) {
+      setVisibleOptionCount(0)
+      return
+    }
+
+    if (elapsedSeconds < OPTION_REVEAL_START) {
+      setVisibleOptionCount(0)
+      return
+    }
+
+    if (elapsedSeconds >= OPTION_REVEAL_END) {
+      setVisibleOptionCount(pollOptions.length)
+      return
+    }
+
+    const revealed = Math.min(
+      pollOptions.length,
+      Math.floor(elapsedSeconds - OPTION_REVEAL_START) + 1,
+    )
+
+    setVisibleOptionCount(revealed)
+  }, [elapsedSeconds, pollOptions])
+
   const decreaseVote = (index: number) => {
     sendHapticFeedbackCommand()
     const vote = votes?.[index]
 
+    if (!isInteractionWindowActive) return
     if (!vote) return
     if (vote.percentage <= 0) return
 
@@ -284,6 +360,7 @@ export default function PollVoteCard({ pollId }: { pollId: number }) {
     sendHapticFeedbackCommand()
     const vote = votes?.[index]
 
+    if (!isInteractionWindowActive) return
     if (!vote) return
     if (vote.percentage >= 100) return
 
@@ -306,6 +383,10 @@ export default function PollVoteCard({ pollId }: { pollId: number }) {
   if (!pollId) return null
 
   const isLoading = pollLoading || userVotesLoading
+  const displayedQuestion =
+    typedQuestion ||
+    (!isExpired && elapsedSeconds === 0 ? '' : (pollDetails?.title ?? ''))
+  const visibleVotes = votes?.slice(0, visibleOptionCount)
 
   return (
     <>
@@ -394,13 +475,7 @@ export default function PollVoteCard({ pollId }: { pollId: number }) {
           ) : (
             <div className="space-y-2 mb-4">
               <h2 className="text-gray-900 text-xl font-medium leading-tight mb-2">
-                <SecureTextCanvas
-                  text={pollDetails?.title ?? ''}
-                  className="h-8 w-full object-contain"
-                  width={560}
-                  fontSize={18}
-                  obfuscate
-                />
+                {displayedQuestion}
               </h2>
 
               {pollDetails?.description && (
@@ -449,8 +524,8 @@ export default function PollVoteCard({ pollId }: { pollId: number }) {
             {isLoading ? (
               <OptionsLoadingSkeleton />
             ) : (
-              votes &&
-              votes.map((vote, index) => (
+              visibleVotes &&
+              visibleVotes.map((vote, index) => (
                 <div key={index} className="space-y-1">
                   <div
                     className="flex items-center justify-between"
@@ -467,7 +542,12 @@ export default function PollVoteCard({ pollId }: { pollId: number }) {
                           borderRight:
                             vote.percentage > 0 ? '1px solid #d6d9dd' : 'none',
                           position: 'relative',
-                          cursor: 'grab',
+                          cursor: isInteractionWindowActive
+                            ? 'grab'
+                            : 'not-allowed',
+                          pointerEvents: isInteractionWindowActive
+                            ? 'auto'
+                            : 'none',
                         }}
                         onMouseDown={() => handleDragStart(index)}
                         onTouchStart={() => handleDragStart(index)}
@@ -496,10 +576,16 @@ export default function PollVoteCard({ pollId }: { pollId: number }) {
                     <div className="flex items-center gap-3">
                       <button
                         onClick={() => decreaseVote(index)}
-                        disabled={vote.percentage === 0}
+                        disabled={
+                          vote.percentage === 0 || !isInteractionWindowActive
+                        }
                       >
                         <MinusRoundIcon
-                          color={vote.percentage === 0 ? '#9BA3AE' : '#191C20'}
+                          color={
+                            vote.percentage === 0 || !isInteractionWindowActive
+                              ? '#9BA3AE'
+                              : '#191C20'
+                          }
                         />
                       </button>
                       <span
@@ -513,11 +599,17 @@ export default function PollVoteCard({ pollId }: { pollId: number }) {
                       </span>
                       <button
                         onClick={() => increaseVote(index)}
-                        disabled={vote.percentage === 100 || isOverVoted}
+                        disabled={
+                          vote.percentage === 100 ||
+                          isOverVoted ||
+                          !isInteractionWindowActive
+                        }
                       >
                         <PlusRoundIcon
                           color={
-                            vote.percentage === 100 || isOverVoted
+                            vote.percentage === 100 ||
+                            isOverVoted ||
+                            !isInteractionWindowActive
                               ? '#9BA3AE'
                               : '#191C20'
                           }
@@ -596,7 +688,8 @@ export default function PollVoteCard({ pollId }: { pollId: number }) {
               setVotePending ||
               !isActive ||
               isNotStarted ||
-              !votesChanged
+              !votesChanged ||
+              !isInteractionWindowActive
             }
           >
             {isNotStarted
