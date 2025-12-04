@@ -84,7 +84,7 @@ export const useGetPollDetails = (id: number): UseQueryResult<IPollDetails> => {
   return useQuery({
     queryKey: ['poll', id],
     queryFn: async () => {
-      const res = await fetch(`/poll/${id}`)
+      const res = await fetch(`/poll/${id}?activeOnly=true`)
       if (!res.ok) throw new Error('Failed to fetch poll details')
       return res.json()
     },

@@ -35,6 +35,7 @@ import CustomShareModal from '../Modals/CustomShareModal'
 import QuadraticInfoModal from '../Modals/QuadraticInfoModal'
 import VotingTypesModal from '../Modals/VotingTypesModal'
 import { Button } from '../ui/Button'
+import { SecureTextCanvas } from '../SecureTextCanvas'
 
 type VoteState = {
   option: string
@@ -563,9 +564,13 @@ export default function PollVoteCard({ pollId }: { pollId: number }) {
                         >
                           <SlidingIcon />
                         </div>
-                        <span className="text-gray-900 whitespace-nowrap">
-                          {vote.option}
-                        </span>
+                        <SecureTextCanvas
+                          text={vote.option}
+                          className="text-gray-900 whitespace-nowrap h-6 max-w-full object-contain"
+                          width={280}
+                          fontSize={15}
+                          obfuscate
+                        />
                       </div>
                     </div>
                     <div className="flex items-center gap-3">
@@ -704,6 +709,7 @@ export default function PollVoteCard({ pollId }: { pollId: number }) {
           <Link
             className="w-full flex items-center justify-center bg-gray-50 gap-2 py-3 text-gray-700 font-semibold rounded-xl font-sora mb-3 active:scale-95 active:transition-transform active:duration-100"
             href={`/poll/${pollId}/results`}
+            prefetch={false}
             onClick={() => sendHapticFeedbackCommand()}
           >
             <StatisticBarsIcon />
