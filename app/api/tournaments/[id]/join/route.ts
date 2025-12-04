@@ -1,67 +1,25 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextResponse } from 'next/server'
+import { getTournamentService, parseJson } from '@/lib/tournaments/service'
+import type { JoinRequest } from '@/lib/tournaments/types'
 
-import { Currency, setPendingJoin } from '@/utils/tournamentPayments'
-
-type Params = Promise<{ id: string }>
-
-type JoinPayload = {
-  worldId?: string
-  walletAddress?: string
-  amount?: number
-  currency?: Currency
+interface Params {
+  params: { id: string }
 }
 
-const parsePayload = async (request: NextRequest): Promise<JoinPayload> => {
+export async function POST(request: Request, { params }: Params) {
   try {
-    return (await request.json()) as JoinPayload
-  } catch {
-    return {}
-  }
-}
-
-export async function POST(request: NextRequest, { params }: { params: Params }) {
-  const { id: tournamentId } = await params
-  const { worldId, walletAddress, amount, currency = 'WLD' } = await parsePayload(request)
-
-  if (!worldId || !walletAddress) {
-    return NextResponse.json(
-      { error: 'Missing World ID or wallet address for the player' },
-      { status: 400 },
-    )
-  }
-
-  if (!amount || amount <= 0) {
-    return NextResponse.json(
-      { error: 'A positive amount is required to join the tournament' },
-      { status: 400 },
-    )
-  }
-
-  if (!['WLD', 'USDC'].includes(currency)) {
-    return NextResponse.json({ error: 'Unsupported currency' }, { status: 400 })
-  }
-
-  const destination = process.env.PAYMENT_DESTINATION
-
-  if (!destination) {
-    return NextResponse.json(
-      { error: 'Payment destination is not configured on the server' },
-      { status: 500 },
-    )
-  }
-
-  try {
-    const join = setPendingJoin(tournamentId, worldId, walletAddress, amount, currency, destination)
-
+    const payload = await parseJson<JoinRequest>(request)
+    const tournament = getTournamentService().joinTournament(params.id, payload)
     return NextResponse.json({
-      destination,
-      amount: join.amount,
-      currency: join.currency,
-      status: join.joinStatus,
-      message: 'Payment intent created, proceed with MiniKit.commandsAsync.pay',
+      tournamentId: tournament.id,
+      state: tournament.state,
+      pot: tournament.pot,
+      players: tournament.players.length,
     })
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Unable to create payment intent'
-    return NextResponse.json({ error: message }, { status: 400 })
+    return NextResponse.json(
+      { error: (error as Error).message },
+      { status: 400 },
+    )
   }
 }

@@ -1,23 +1,24 @@
 import { NextResponse } from 'next/server'
 import { getTournamentService, parseJson } from '@/lib/tournaments/service'
-import type { JoinCallbackPayload } from '@/lib/tournaments/types'
 
 interface Params {
   params: { id: string }
 }
 
+interface AnswerPayload {
+  playerId: string
+  optionIndex: number
+}
+
 export async function POST(request: Request, { params }: Params) {
   try {
-    const payload = await parseJson<JoinCallbackPayload>(request)
-    const tournament = getTournamentService().handleJoinCallback(
+    const body = await parseJson<AnswerPayload>(request)
+    const answer = getTournamentService().submitAnswer(
       params.id,
-      payload,
+      body.playerId,
+      body.optionIndex,
     )
-    return NextResponse.json({
-      tournamentId: tournament.id,
-      state: tournament.state,
-      players: tournament.players.length,
-    })
+    return NextResponse.json({ answer })
   } catch (error) {
     return NextResponse.json(
       { error: (error as Error).message },
